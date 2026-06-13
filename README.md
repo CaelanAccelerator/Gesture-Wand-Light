@@ -67,6 +67,63 @@ minimal code changes.
 
 ---
 
+## 2b. Project File Structure
+
+The project separates **CubeMX-generated code** from **my application code**, and
+within the app, separates **pure logic** from **hardware drivers**. This is the
+file-level expression of the decoupling described above.
+
+```
+My_Project_2/
+├── Core/                  # CubeMX-generated. Don't hand-edit except USER CODE regions.
+│   └── Src/main.cpp       # Only: init peripherals + wire modules together + main loop
+├── Drivers/               # CubeMX-generated HAL library. Do not edit.
+│
+├── App/                   # All my own code (CubeMX never touches this)
+│   ├── core/              # Pure logic layer — NO HAL includes, PC-testable
+│   │   ├── MotionData.hpp     # Data contract: struct { int16_t ax,ay,az,gx,gy,gz }
+│   │   ├── Gesture.hpp        # enum class Gesture { None, Swing, Circle, ... }
+│   │   ├── ISensor.hpp        # Abstract input interface (produces MotionData)
+│   │   ├── ILight.hpp         # Abstract output interface (setColor/setBrightness/update)
+│   │   ├── GestureDetector.hpp/.cpp   # Recognition logic (pure algorithm)
+│   │   └── LightController.hpp/.cpp   # State machine + gesture->effect mapping
+│   │
+│   ├── driver/            # Hardware adapter layer — HAL is included HERE only
+│   │   ├── ButtonInput.hpp/.cpp       # Mock input: button -> fabricated MotionData
+│   │   ├── BoardLed.hpp/.cpp          # Mock output: on-board LED implements ILight
+│   │   ├── Mpu6050Sensor.hpp/.cpp     # (later) real IMU implements ISensor
+│   │   └── Ws2812Light.hpp/.cpp       # (later) real strip implements ILight
+│   │
+│   └── app/
+│       └── App.cpp        # Assembles all layers; main() just calls into this
+│
+├── tools/
+│   └── uart_logger.py     # PC-side serial logger (not flashed to the board)
+├── docs/design.md
+├── README.md
+└── DEBUGGING_STORIES.md
+```
+
+### Design intent
+- **`core/` vs `driver/` is the heart of the structure.** `core/` is pure logic
+  and includes no HAL — it talks to hardware only through the `ISensor` /
+  `ILight` interfaces. `driver/` is where HAL calls live; each driver implements
+  an interface. **Swapping hardware = add a new class in `driver/`; `core/` is
+  untouched.** (e.g. on-board LED -> WS2812 = new `Ws2812Light : ILight`.)
+- **`main.cpp` stays thin:** CubeMX init, construct + wire the objects (inject a
+  `BoardLed` into the `LightController`, etc.), run the loop. No business logic.
+- **Header-only files** (`MotionData`, `Gesture`, the interfaces) are pure
+  declarations and need no `.cpp`. Files with behavior get a matching `.cpp`.
+- **`tools/` is host-side** (Python), kept separate from firmware.
+
+### Build note (CubeIDE)
+New folders under `App/` must be added to the compiler's **source locations and
+include paths** (Properties -> C/C++ General -> Paths and Symbols), or the IDE
+won't compile them and headers won't resolve. Verify with a single `#include`
+and a Build before writing a lot of code.
+
+---
+
 ## 3. Glossary / Naming Conventions (English terms we use)
 
 | Term | Meaning |
@@ -93,12 +150,16 @@ minimal code changes.
 
 ## 4. Progress Log
 
-### Day 1 — Environment revival + blink
+### Day 1 — Environment revival + blink + UART + C++ conversion
 - [x] Confirmed toolchain works, project builds, flashes successfully
 - [x] Blinked on-board LED (LD2 / PA5) via `HAL_GPIO_TogglePin` + `HAL_Delay`
 - [x] Removed/commented out W5500 test code to get back to a clean blink baseline
-- [ ] UART `printf` debug output (next)
-- [ ] Blink + serial status print combined (output-layer seed)
+- [x] Diagnosed + fixed dead-LED bug (PA5 pin multiplexing conflict — Story #1)
+- [x] Set up Git repo, `.gitignore` (build output excluded), pushed to GitHub
+- [x] UART `printf` debug output working via `_write` redirect (115200 baud)
+- [x] Converted project to C++ (`main.cpp`)
+- [x] Fixed silent printf failure after C++ conversion (`extern "C"` on `_write` — Story #2)
+- [ ] Define framework contracts: `MotionData`, `Gesture`, `ILight` (next)
 
 ### Standard flash procedure
 1. Edit code (keep custom code inside `/* USER CODE BEGIN/END */` markers)
@@ -107,31 +168,32 @@ minimal code changes.
    auto-resets the board
 4. Watch LD2. To restart manually: press **B2 (reset)** or re-plug USB.
 
+### Git workflow (daily rhythm)
+Repo: https://github.com/CaelanAccelerator/Gesture-Wand-Light
+
+After each meaningful chunk of work:
+```
+git add .
+git commit -m "short present-tense message, e.g. Add UART printf output"
+git push
+```
+- Commit small and often; one logical change per commit.
+- Each commit should leave the code in a working state.
+- `Debug/` build output is git-ignored on purpose (regenerated every build).
+- IDE/CubeMX config (`.ioc`, `.cproject`, etc.) IS tracked — versions hardware
+  config history (e.g. pin assignments).
+
 ---
 
-## 5. Debugging Log (interview-ready stories)
+## 5. Debugging Log
 
-### #1 — Dead on-board LED: a pin multiplexing conflict
-- **Situation:** Building the gesture-light framework on STM32; on-board LED used
-  as a debug indicator. Had previously edited SPI pin config to wire up a W5500
-  Ethernet module.
-- **Problem:** After flashing, the green LED (LD2) was completely dark, though
-  the power and comms LEDs were normal and the program flashed/verified fine.
-- **Action:** Ruled out software first — commented out peripheral init, switched
-  from Debug to Run mode to rule out a halt at the entry point. Symptom
-  persisted. Suspected the earlier W5500 work, opened the CubeMX pin view, and
-  found the LED's pin **PA5** had been reassigned as **SPI1_SCK**.
-- **Root cause:** **Pin multiplexing conflict** — PA5 can only serve one role at
-  a time; assigned to SPI, it no longer responded to GPIO operations.
-- **Fix:** Reassigned PA5 back to `GPIO_Output`, disabled the conflicting SPI1
-  config; LED recovered.
-- **Takeaway / habit formed:** Before changing pin config, check whether the pin
-  is already claimed by an on-board peripheral (LED, button). On Nucleo-F446RE,
-  LD2 and SPI1_SCK both default to PA5. For the real W5500 work, remap SPI clock
-  to a free pin to avoid this.
-- **Signal words to use:** pin multiplexing / alternate function; "one physical
-  pin, one function at a time"; elimination-based debugging; "suspect software
-  before config."
+Full interview-ready stories (STAR format) live in **`DEBUGGING_STORIES.md`**.
+
+Quick index:
+- **#1 — Dead on-board LED:** PA5 pin multiplexing conflict (LED pin had been
+  reassigned as SPI1_SCK).
+- **#2 — printf silently dead after C→C++:** name mangling on `_write`; fixed
+  with `extern "C"`. Silent functional failure, no compiler error.
 
 ---
 
