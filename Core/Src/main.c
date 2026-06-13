@@ -56,12 +56,12 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-//int _write(int file, char *ptr, int len)
-//{
-//    HAL_UART_Transmit(&huart2, (uint8_t *)ptr, len, HAL_MAX_DELAY);
-//    return len;
-//}
-//
+int _write(int file, char *ptr, int len)
+{
+    HAL_UART_Transmit(&huart2, (uint8_t *)ptr, len, HAL_MAX_DELAY);
+    return len;
+}
+
 //static void W5500_Select(void)
 //{
 //    HAL_GPIO_WritePin(W5500_CS_GPIO_Port, W5500_CS_Pin, GPIO_PIN_RESET);
@@ -129,7 +129,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  //printf("STM32 W5500 SPI test start\r\n");
+  printf("STM32 serial alive! Build ok.\r\n");
 
   //W5500_Unselect();
   //W5500_Reset();
@@ -153,7 +153,8 @@ int main(void)
   while (1)
   {
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	  HAL_Delay(1500);
+	  printf("LED2 toggled\r\n");
+	  HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
