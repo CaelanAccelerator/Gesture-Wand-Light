@@ -1,12 +1,7 @@
 #pragma once
 
 #include<cstdint>
-
-enum class Status{
-	OK,
-	Err,
-};
-
+#include"Status.hpp"
 
 // Abstract output interface for "a light".
 // Runtime polymorphism: LightController holds an ILight* and swaps concrete
