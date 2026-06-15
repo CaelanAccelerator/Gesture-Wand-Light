@@ -17,15 +17,16 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <driver/MockLight.hpp>
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
-#include "driver/BoardLed.hpp"
 #include "core/LightController.hpp"
 #include "core/GestureDetector.hpp"
 #include "driver/ButtonInput.hpp"
+#include "core/Animator.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -156,18 +157,18 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  BoardLed led;
-  LightController controller(&led);
-  GestureDetector detector;
-  ButtonInput buttonInput{};
-  printf("Start\r\n");
+  MockLight led;
+  Animator anim(&led);
+  LedColor orange = {255, 140, 0};
+  LedColor purple = {128, 0, 255};
+  anim.renderGradient(orange, purple);
   while (1)
   {
-	  MotionData md;
-	  buttonInput.read(md);
-	  Gesture gs = detector.gestureDetect(md);
-	  controller.handleGesture(gs);
-	  HAL_Delay(100);
+//	  MotionData md;
+//	  buttonInput.read(md);
+//	  Gesture gs = detector.gestureDetect(md);
+//	  controller.handleGesture(gs);
+//	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

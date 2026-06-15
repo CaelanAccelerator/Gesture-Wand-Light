@@ -12,11 +12,13 @@ class ILight{
 public:
 	virtual ~ILight() {}
 
-	virtual Status setColor(uint8_t r, uint8_t g, uint8_t b) = 0;
+	virtual Status setPixel(int index, uint8_t r, uint8_t g, uint8_t b) = 0;
 
 	virtual Status setBrightness(uint8_t b) = 0;
 
-	virtual Status update() = 0;
+	virtual int getNumPixels() = 0;
+
+	virtual Status show() = 0;
 
 	virtual Status on() = 0;
 

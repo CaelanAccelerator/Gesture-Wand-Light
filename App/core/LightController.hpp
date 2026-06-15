@@ -16,7 +16,7 @@ public:
 			light_->on();
 			break;
 		case Gesture::Circle:
-			light_->setColor(1,2,3);
+			light_->setBrightness(123);
 			break;
 		}
 	}
