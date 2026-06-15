@@ -159,9 +159,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   MockLight led;
   Animator anim(&led);
-  LedColor orange = {255, 140, 0};
-  LedColor purple = {128, 0, 255};
-  LedColor pink   = {255, 100, 150};
+//  LedColor orange = {255, 140, 0};
+//  LedColor purple = {128, 0, 255};
+//  LedColor pink   = {255, 100, 150};
   LedColor empty = {0, 0, 0};
 
 //  //full rendering
@@ -213,27 +213,39 @@ int main(void)
 //  anim.renderGradient(orange, purple,1,2);
 //  anim.show();
 
-  //tripple rendering full
-  printf("tripple rendering full\r\n");
+//  //tripple rendering full
+//  printf("tripple rendering full\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, pink, purple,0,7,16);
+//  anim.show();
+//
+//  //tripple rendering partial
+//  printf("tripple rendering partial\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, pink, purple,2,7,14);
+//  anim.show();
+//
+//  //tripple rendering invalid
+//  printf("tripple rendering invalid start >= mid\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, pink, purple,7,7,14);
+//  anim.show();
+//
+//  printf("tripple rendering invalid mid >= end\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, pink, purple,2,7,7);
+//  anim.show();
+
+  //render sunset
+  printf("render sunset\r\n");
   anim.renderGradient(empty,empty,0,16);
-  anim.renderGradient(orange, pink, purple,0,7,16);
+  anim.renderPalette(Palettes::Sunset);
   anim.show();
 
-  //tripple rendering partial
-  printf("tripple rendering partial\r\n");
+  //render sunset
+  printf("render aurora\r\n");
   anim.renderGradient(empty,empty,0,16);
-  anim.renderGradient(orange, pink, purple,2,7,14);
-  anim.show();
-
-  //tripple rendering invalid
-  printf("tripple rendering invalid start >= mid\r\n");
-  anim.renderGradient(empty,empty,0,16);
-  anim.renderGradient(orange, pink, purple,7,7,14);
-  anim.show();
-
-  printf("tripple rendering invalid mid >= end\r\n");
-  anim.renderGradient(empty,empty,0,16);
-  anim.renderGradient(orange, pink, purple,2,7,7);
+  anim.renderPalette(Palettes::Aurora);
   anim.show();
 
   while (1)

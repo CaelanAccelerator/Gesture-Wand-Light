@@ -2,11 +2,18 @@
 #include"LedColor.hpp"
 #include"Status.hpp"
 #include"ILight.hpp"
+#include"Palette.hpp"
 
 class Animator{
 public:
 	Animator(ILight *light){
 		this->light_ = light;
+	}
+
+
+	Status renderPalette(const Palette &palette){
+		int numPixel = light_->getNumPixels();
+		return renderGradient(palette.c1, palette.c2, palette.c3, 0, numPixel/2, numPixel);
 	}
 
 	Status renderGradient(const LedColor &startColor, const LedColor &endColor, const int start, const int end){
