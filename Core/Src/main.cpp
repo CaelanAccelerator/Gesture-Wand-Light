@@ -22,6 +22,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include "driver/BoardLed.hpp"
+#include "core/LightController.hpp"
+#include "core/GestureDetector.hpp"
+#include "driver/ButtonInput.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,6 +65,8 @@ extern "C" int _write(int file, char *ptr, int len)
     HAL_UART_Transmit(&huart2, (uint8_t *)ptr, len, HAL_MAX_DELAY);
     return len;
 }
+
+
 
 //static void W5500_Select(void)
 //{
@@ -150,11 +156,18 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  BoardLed led;
+  LightController controller(&led);
+  GestureDetector detector;
+  ButtonInput buttonInput{};
+  printf("Start\r\n");
   while (1)
   {
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	  printf("LED2 toggled\r\n");
-	  HAL_Delay(500);
+	  MotionData md;
+	  buttonInput.read(md);
+	  Gesture gs = detector.gestureDetect(md);
+	  controller.handleGesture(gs);
+	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -287,7 +300,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
-
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
   /* USER CODE END MX_GPIO_Init_2 */
 }
 
