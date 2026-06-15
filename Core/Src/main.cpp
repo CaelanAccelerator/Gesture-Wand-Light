@@ -161,7 +161,81 @@ int main(void)
   Animator anim(&led);
   LedColor orange = {255, 140, 0};
   LedColor purple = {128, 0, 255};
-  anim.renderGradient(orange, purple);
+  LedColor pink   = {255, 100, 150};
+  LedColor empty = {0, 0, 0};
+
+//  //full rendering
+//  printf("full rendering\r\n");
+//  anim.renderGradient(orange, purple,0,16);
+//  anim.show();
+//
+//  //normal
+//  printf("normal\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, purple,1,15);
+//  anim.show();
+//
+//  //start out of range
+//  printf("start = -1\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, purple,-1,16);
+//  anim.show();
+//  printf("start = 17\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, purple,17,16);
+//  anim.show();
+//
+//  //end out of range
+//  printf("end = -1\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, purple,1,-1);
+//  anim.show();
+//  printf("end = 17\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, purple,1,17);
+//  anim.show();
+//
+//  //start larger than end
+//  printf("start larger than end\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, purple,5,4);
+//  anim.show();
+//
+//  //start = end
+//  printf("start == end\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, purple,1,1);
+//  anim.show();
+//
+//  //one pixel
+//  printf("one pixel\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderGradient(orange, purple,1,2);
+//  anim.show();
+
+  //tripple rendering full
+  printf("tripple rendering full\r\n");
+  anim.renderGradient(empty,empty,0,16);
+  anim.renderGradient(orange, pink, purple,0,7,16);
+  anim.show();
+
+  //tripple rendering partial
+  printf("tripple rendering partial\r\n");
+  anim.renderGradient(empty,empty,0,16);
+  anim.renderGradient(orange, pink, purple,2,7,14);
+  anim.show();
+
+  //tripple rendering invalid
+  printf("tripple rendering invalid start >= mid\r\n");
+  anim.renderGradient(empty,empty,0,16);
+  anim.renderGradient(orange, pink, purple,7,7,14);
+  anim.show();
+
+  printf("tripple rendering invalid mid >= end\r\n");
+  anim.renderGradient(empty,empty,0,16);
+  anim.renderGradient(orange, pink, purple,2,7,7);
+  anim.show();
+
   while (1)
   {
 //	  MotionData md;
