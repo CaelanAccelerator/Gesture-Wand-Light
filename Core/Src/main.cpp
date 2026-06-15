@@ -162,7 +162,7 @@ int main(void)
 //  LedColor orange = {255, 140, 0};
 //  LedColor purple = {128, 0, 255};
 //  LedColor pink   = {255, 100, 150};
-  LedColor empty = {0, 0, 0};
+//  LedColor empty = {0, 0, 0};
 
 //  //full rendering
 //  printf("full rendering\r\n");
@@ -237,16 +237,34 @@ int main(void)
 //  anim.show();
 
   //render sunset
-  printf("render sunset\r\n");
-  anim.renderGradient(empty,empty,0,16);
-  anim.renderPalette(Palettes::Sunset);
-  anim.show();
+//  printf("render sunset\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderPalette(Palettes::Sunset);
+//  anim.show();
+//
+//  //render sunset
+//  printf("render aurora\r\n");
+//  anim.renderGradient(empty,empty,0,16);
+//  anim.renderPalette(Palettes::Aurora);
+//  anim.show();
 
-  //render sunset
-  printf("render aurora\r\n");
-  anim.renderGradient(empty,empty,0,16);
-  anim.renderPalette(Palettes::Aurora);
-  anim.show();
+  LightController controller(&anim);
+  printf("Circle on\r\n");
+  controller.handleGesture(Gesture::Circle);
+  printf("SwingUp\r\n");
+  controller.handleGesture(Gesture::SwingUp);
+  printf("SwingDown\r\n");
+  controller.handleGesture(Gesture::SwingDown);
+  printf("Circle off\r\n");
+  controller.handleGesture(Gesture::Circle);
+  printf("Circle on\r\n");
+  controller.handleGesture(Gesture::Circle);
+  printf("SwingSide until go back\r\n");
+  controller.handleGesture(Gesture::SwingSide);
+  controller.handleGesture(Gesture::SwingSide);
+  controller.handleGesture(Gesture::SwingSide);
+  controller.handleGesture(Gesture::SwingSide);
+  controller.handleGesture(Gesture::SwingSide);
 
   while (1)
   {

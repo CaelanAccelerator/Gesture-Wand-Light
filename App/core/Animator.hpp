@@ -10,6 +10,9 @@ public:
 		this->light_ = light;
 	}
 
+	Status setBrightness(uint8_t b){
+		return this->light_->setBrightness(b);
+	}
 
 	Status renderPalette(const Palette &palette){
 		int numPixel = light_->getNumPixels();

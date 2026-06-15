@@ -8,7 +8,7 @@ class GestureDetector{
 public:
 	Gesture gestureDetect(const MotionData &md){
 		if(abs(md.ax) > THRESHOLD || abs(md.ay) > THRESHOLD || abs(md.az - GRAVITY) > THRESHOLD){
-			return Gesture:: Swing;
+			return Gesture:: SwingUp;
 		}
 		return Gesture::None;
 	}
