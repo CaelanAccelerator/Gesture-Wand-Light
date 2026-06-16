@@ -27,6 +27,8 @@
 #include "core/GestureDetector.hpp"
 #include "driver/ButtonInput.hpp"
 #include "core/Animator.hpp"
+#include "driver/UartSender.hpp"
+#include "driver/UartReceiver.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -136,6 +138,9 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  HAL_NVIC_SetPriority(USART2_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(USART2_IRQn);
+  HAL_UART_Receive_IT(&huart2, &g_uartRxBuf, 1);
   printf("STM32 serial alive! Build ok.\r\n");
 
   //W5500_Unselect();
@@ -248,26 +253,38 @@ int main(void)
 //  anim.renderPalette(Palettes::Aurora);
 //  anim.show();
 
-  LightController controller(&anim);
-  printf("Circle on\r\n");
-  controller.handleGesture(Gesture::Circle);
-  printf("SwingUp\r\n");
-  controller.handleGesture(Gesture::SwingUp);
-  printf("SwingDown\r\n");
-  controller.handleGesture(Gesture::SwingDown);
-  printf("Circle off\r\n");
-  controller.handleGesture(Gesture::Circle);
-  printf("Circle on\r\n");
-  controller.handleGesture(Gesture::Circle);
-  printf("SwingSide until go back\r\n");
-  controller.handleGesture(Gesture::SwingSide);
-  controller.handleGesture(Gesture::SwingSide);
-  controller.handleGesture(Gesture::SwingSide);
-  controller.handleGesture(Gesture::SwingSide);
-  controller.handleGesture(Gesture::SwingSide);
+//  LightController controller(&anim);
+//  printf("Circle on\r\n");
+//  controller.handleGesture(Gesture::Circle);
+//  printf("SwingUp\r\n");
+//  controller.handleGesture(Gesture::SwingUp);
+//  printf("SwingDown\r\n");
+//  controller.handleGesture(Gesture::SwingDown);
+//  printf("Circle off\r\n");
+//  controller.handleGesture(Gesture::Circle);
+//  printf("Circle on\r\n");
+//  controller.handleGesture(Gesture::Circle);
+//  printf("SwingSide until go back\r\n");
+//  controller.handleGesture(Gesture::SwingSide);
+//  controller.handleGesture(Gesture::SwingSide);
+//  controller.handleGesture(Gesture::SwingSide);
+//  controller.handleGesture(Gesture::SwingSide);
+//  controller.handleGesture(Gesture::SwingSide);
 
+  UartReceiver *receiver = new UartReceiver();
+  receiver->start();
+
+  ISender *sender = new UartSender();
+  sender->send(Gesture::Circle);
+
+  delete sender;
   while (1)
   {
+	  Gesture out;
+	  if(receiver->receive(out)){
+		  LightController controller(&anim);
+		  controller.handleGesture(out);
+	  }
 //	  MotionData md;
 //	  buttonInput.read(md);
 //	  Gesture gs = detector.gestureDetect(md);
@@ -277,6 +294,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
   }
+  delete receiver;
   /* USER CODE END 3 */
 }
 
